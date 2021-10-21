@@ -24,7 +24,7 @@ async def main():
         x = client.is_connected
         print("Connected: {0}".format(x))
         try:
-            await client.pair()
+            # await client.pair()
             cont = Controller(client)
             root = tk.Tk()
             root.protocol("WM_DELETE_WINDOW", lambda: asyncio.gather(cont.quit()))
