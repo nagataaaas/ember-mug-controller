@@ -21,3 +21,14 @@ to use controller.
 > Note: Only tested on Windows11
 
 ![demo](https://github.com/nagataaaas/ember-mug-controller/blob/main/static/asset/screenshot1.png?raw=true)
+
+## On Title Bar...
+- Click '°C' or '°F' to toggle Celsius and Fahrenheit
+- Click '📎' to toggle topmost(Force to being in the front).
+
+## On Body...
+- Click LED on mug to choose LED color.
+- The illustration on the mug changes depending on its state.
+- Click Heat and Ice icon to change setting temperature.
+- Current Temperature(upper) and Setting Temperature(Bottom).
+- Show current State(Empty, Off, Heating, Keeping, etc.).
