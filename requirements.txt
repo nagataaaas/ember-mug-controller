@@ -1,0 +1,4 @@
+bleak~=0.12.1
+pillow~=8.0.1
+future~=0.18.2
+tkcolorpicker~=2.1.3
