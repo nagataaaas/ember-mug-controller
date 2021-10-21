@@ -6,29 +6,19 @@ from controller import Controller
 from gui import Application
 
 
-class Ember:
-    def __init__(self, address: str):
-        self.address = address
-
-
 async def main():
-    ember = Ember('E2:63:86:7C:1F:2D')
-
-    try:
-        _ = ember
-    except:
-        devices = await discover()
-        ember = None
-        for d in devices:
-            if d.metadata.get('manufacturer_data', {}).get(0xFFFF) == EMBER_MANUFACTURER_CODE:
-                user_input = input('Device {!r} found. Is this ember mug? Y/N [Y]: '.format(d.name)) or 'y'
-                if user_input.lower() == 'y':
-                    ember = d
-                    break
-        if not ember:
-            'Ember mug is not found. Exiting...'
-            return
-        print(ember)
+    devices = await discover()
+    ember = None
+    for d in devices:
+        if d.metadata.get('manufacturer_data', {}).get(0xFFFF) == EMBER_MANUFACTURER_CODE:
+            user_input = input('Device {!r} found. Is this ember mug? Y/N [Y]: '.format(d.name)) or 'y'
+            if user_input.lower() == 'y':
+                ember = d
+                break
+    if not ember:
+        'Ember mug is not found. Exiting...'
+        return
+    print(ember)
 
     async with BleakClient(ember.address) as client:
         x = client.is_connected
