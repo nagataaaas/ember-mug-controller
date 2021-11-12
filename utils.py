@@ -136,12 +136,11 @@ class BatteryState:
 
 
 def decode_temperature(value: bytearray) -> float:
-    return (value[1] * 256 + value[0]) / 100
+    return int.from_bytes(value, byteorder='little') / 100
 
 
 def encode_temperature(value: float) -> bytearray:
-    value = int(value * 100)
-    return bytearray.fromhex('{:02x} {:02x}'.format(value % 256, value // 256))
+    return bytearray(round(value*100).to_bytes(length=2, byteorder='little'))
 
 
 def parse_battery(value: bytearray) -> BatteryState:
