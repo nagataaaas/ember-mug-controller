@@ -2,12 +2,13 @@ import asyncio
 import tkinter as tk
 from typing import Union
 from bleak import discover, BleakClient
+from plyer import notification
 
 from utils import *
 
 
 class Controller:
-    def __init__(self, client: BleakClient):
+    def __init__(self, client: BleakClient, notify_when_complete=False):
         self.client = client
 
         self.battery: Union[BatteryState, None] = None
@@ -16,6 +17,8 @@ class Controller:
         self.state: Union[State, None] = None
         self.color: Union[Color, None] = None
         self.temperature_scale = TemperatureScale.Celsius
+
+        self.notify_when_complete = notify_when_complete
 
         self.running = False
 
@@ -61,7 +64,16 @@ class Controller:
 
     async def fetch_state(self):
         value = await self.client.read_gatt_char(Request.State.as_uuid)
-        self.state = State(value[0])
+        state = State(value[0])
+        if state == State.Keeping and self.state != State.Keeping and self.notify_when_complete:
+            if self.temperature_scale == TemperatureScale.Celsius:
+                temp = '{}°C'.format(self.setting_temperature)
+            else:
+                temp = '{}°F'.format(int(TemperatureConversion.c2f(self.setting_temperature)))
+            notification.notify(title='Your Drink is Waiting For You!',
+                                message='Your drink is waiting for you to drink!. It\'s nice and warm {}!'.format(temp),
+                                app_name='Ember Mug Controller')
+        self.state = state
 
     async def fetch_color(self):
         value = await self.client.read_gatt_char(Request.LightColor.as_uuid)
@@ -115,7 +127,6 @@ class Controller:
             if not self.running:
                 return await self.client.stop_notify(Request.Notification.as_uuid)
             notification = NotificationValue(data[0])
-            print(notification)
 
             if (notification is NotificationValue.BatteryChargeChange or
                     notification is NotificationValue.OnCoaster or
