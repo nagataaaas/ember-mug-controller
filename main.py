@@ -25,7 +25,7 @@ async def main():
         print("Connected: {0}".format(x))
         try:
             # await client.pair()
-            cont = Controller(client)
+            cont = Controller(client, True)
             root = tk.Tk()
             root.protocol("WM_DELETE_WINDOW", lambda: asyncio.gather(cont.quit()))
             root.title('Ember Mug Controller')
