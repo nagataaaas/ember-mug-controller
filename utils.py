@@ -1,7 +1,7 @@
 from enum import IntEnum, Enum
 
 CharacteristicBase = 'FC5400{:02x}-236C-4C94-8FA9-944A3E5353FA'
-EMBER_MANUFACTURER_CODE = b'\x81'
+EMBER_MANUFACTURER_CODE = 0xFFFF
 
 
 class Temperature:

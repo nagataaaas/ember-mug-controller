@@ -8,17 +8,17 @@ from gui import Application
 
 async def main():
     devices = await discover()
-    ember = None
     for d in devices:
-        if d.metadata.get('manufacturer_data', {}).get(0xFFFF) == EMBER_MANUFACTURER_CODE:
+        if EMBER_MANUFACTURER_CODE in d.metadata.get('manufacturer_data', {}):
             user_input = input('Device {!r} found. Is this ember mug? Y/N [Y]: '.format(d.name)) or 'y'
             if user_input.lower() == 'y':
                 ember = d
                 break
-    if not ember:
-        'Ember mug is not found. Exiting...'
+    else:
+        print('Ember mug is not found. Exiting...')
         return
     print(ember)
+    print(ember.metadata)
 
     async with BleakClient(ember.address) as client:
         x = client.is_connected
