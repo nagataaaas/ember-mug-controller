@@ -17,8 +17,6 @@ async def main():
     else:
         print('Ember mug is not found. Exiting...')
         return
-    print(ember)
-    print(ember.metadata)
 
     async with BleakClient(ember.address) as client:
         x = client.is_connected
