@@ -65,6 +65,8 @@ class Controller:
     async def fetch_state(self):
         value = await self.client.read_gatt_char(Request.State.as_uuid)
         state = State(value[0])
+        if state == State.Poured:
+            await self.set_setting_temperature(max(self.setting_temperature, 50.0))
         if state == State.Keeping and self.state != State.Keeping and self.notify_when_complete:
             if self.temperature_scale == TemperatureScale.Celsius:
                 temp = '{}°C'.format(self.setting_temperature)
