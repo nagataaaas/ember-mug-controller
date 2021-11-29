@@ -2,12 +2,15 @@ import asyncio
 import tkinter as tk
 from typing import Union
 from bleak import discover, BleakClient
+from datetime import datetime, timedelta
 from plyer import notification
 
 from utils import *
 
 
 class Controller:
+    notify_interval = 180  # won't notify until after 180 seconds from last notification
+
     def __init__(self, client: BleakClient, notify_when_complete=False):
         self.client = client
 
@@ -19,6 +22,7 @@ class Controller:
         self.temperature_scale = TemperatureScale.Celsius
 
         self.notify_when_complete = notify_when_complete
+        self.last_notify: Union[datetime, None] = None
 
         self.running = False
 
@@ -46,6 +50,20 @@ class Controller:
 
         await asyncio.gather(self.set_schedule(), self.initial_fetch_values(True))
 
+    def notify(self):
+        if self.last_notify is not None and self.last_notify > datetime.now() - timedelta(seconds=self.notify_interval):
+            return
+
+        self.last_notify = datetime.now()
+
+        if self.temperature_scale == TemperatureScale.Celsius:
+            temp = '{}°C'.format(self.setting_temperature)
+        else:
+            temp = '{}°F'.format(int(TemperatureConversion.c2f(self.setting_temperature)))
+        notification.notify(title='Your Drink is Waiting For You!',
+                            message='Your drink is waiting for you to drink!. It\'s nice and warm {}!'.format(temp),
+                            app_name='Ember Mug Controller')
+
     async def fetch_battery_state(self):
         value = await self.client.read_gatt_char(Request.Battery.as_uuid)
         self.battery = parse_battery(value)
@@ -68,13 +86,7 @@ class Controller:
         if state == State.Poured:
             await self.set_setting_temperature(max(self.setting_temperature, 50.0))
         if state == State.Keeping and self.state != State.Keeping and self.notify_when_complete:
-            if self.temperature_scale == TemperatureScale.Celsius:
-                temp = '{}°C'.format(self.setting_temperature)
-            else:
-                temp = '{}°F'.format(int(TemperatureConversion.c2f(self.setting_temperature)))
-            notification.notify(title='Your Drink is Waiting For You!',
-                                message='Your drink is waiting for you to drink!. It\'s nice and warm {}!'.format(temp),
-                                app_name='Ember Mug Controller')
+            self.notify()
         self.state = state
 
     async def fetch_color(self):
